@@ -13,10 +13,6 @@
     "removeComments": true,
     "typeRoots": ["index.d.ts", "node_modules/@types"]
   },
-  "include": [
-    "./src/**/*.tsx",
-    "./src/**/*.ts",
-    "./src/lib/number-counter.tsx"
-  ],
+  "include": ["./src/lib/number-counter.tsx"],
   "exclude": ["node_modules"]
 }
