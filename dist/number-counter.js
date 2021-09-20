@@ -29,6 +29,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var react_1 = __importStar(require("react"));
 var sequences = [
@@ -50,17 +59,14 @@ var NumberCounter = function (props) {
     var value = props.value;
     var mock_ref = react_1.default.useRef(null);
     var suffix_ref = react_1.default.useRef(null);
-    var sequence = react_1.default.useState(value
-        .toString()
-        .replace(/,/gi, "")
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-        .split(""))[0];
+    var setting_cnt = react_1.default.useRef(0);
+    var _c = react_1.default.useState(["0"]), sequence = _c[0], setSequence = _c[1];
     var transition = props.transition * sequence.length;
     var sequence_transition = "all " + transition / 1000 / 2 + "s cubic-bezier(0.07, 0.49, 0.35, 0.99)";
-    var _c = react_1.default.useState({
+    var _d = react_1.default.useState({
         width: -1,
         height: -1,
-    }), box_style = _c[0], setBoxStyle = _c[1];
+    }), box_style = _d[0], setBoxStyle = _d[1];
     var loaded = box_style.width !== -1 && box_style.height !== -1;
     var number_counter_style = {
         position: "relative",
@@ -125,7 +131,7 @@ var NumberCounter = function (props) {
             ? __assign(__assign({}, sequence_style), getSpliterStyle(e)) : sequence_style;
     };
     var getAnimationDelay = function (e) {
-        return ((transition / sequence.length) * e) / 1000 + "s";
+        return (transition * (e / sequence.length)) / 1000 + "s";
     };
     var getOpacity = function (index) {
         return loaded || index === 0 ? 1 : 0;
@@ -147,7 +153,9 @@ var NumberCounter = function (props) {
     var suffix_style = {
         position: "absolute",
         top: 0,
-        transition: (((sequence.length - 1) / sequence.length) * transition) / 700 + "s",
+        transition: setting_cnt.current >= 2
+            ? sequence_transition
+            : (((sequence.length - 1) / sequence.length) * transition) / 700 + "s",
         fontSize: "inherit",
         left: getBoxWidht() + 3,
     };
@@ -161,6 +169,28 @@ var NumberCounter = function (props) {
             }, 100);
         }
     }, [loaded, mock_ref]);
+    react_1.default.useEffect(function () {
+        var prev_sequence = __spreadArray([], sequence, true);
+        var next_sequence = value
+            .toString()
+            .replace(/,/gi, "")
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            .split("");
+        if (next_sequence.length >= prev_sequence.length) {
+            setSequence(next_sequence);
+        }
+        else {
+            var temp_sequence = next_sequence.map(function (_, index) {
+                var _a;
+                return (_a = prev_sequence[index]) !== null && _a !== void 0 ? _a : 0;
+            });
+            setSequence(temp_sequence);
+            setTimeout(function () {
+                setSequence(next_sequence);
+            }, props.transition / 2000);
+        }
+        setting_cnt.current += 1;
+    }, [props.value]);
     var id = (0, react_1.useMemo)(function () {
         var max = 99999;
         var min = 10000;
@@ -171,7 +201,9 @@ var NumberCounter = function (props) {
         sequence.map(function (item, index) {
             return (react_1.default.createElement(react_1.default.Fragment, { key: index },
                 react_1.default.createElement("div", { style: getSequenceBoxStyle(item), className: item },
-                    react_1.default.createElement("div", { style: __assign(__assign({}, sequence_scroll_style), { top: getTop(item), transitionDelay: getAnimationDelay(index), opacity: getOpacity(index) }) }, sequences.map(function (item) {
+                    react_1.default.createElement("div", { style: __assign(__assign({}, sequence_scroll_style), { top: getTop(item), transitionDelay: setting_cnt.current >= 2
+                                ? "0.01s"
+                                : getAnimationDelay(index), opacity: getOpacity(index) }) }, sequences.map(function (item) {
                         return (react_1.default.createElement(react_1.default.Fragment, { key: item },
                             react_1.default.createElement("div", { style: getSequenceStyle(item) }, item)));
                     })))));
