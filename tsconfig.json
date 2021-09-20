@@ -1,26 +1,40 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
+    "module": "esnext",
     "target": "es5",
     "lib": [
+      "es6",
       "dom",
-      "dom.iterable",
-      "esnext"
+      "es2016",
+      "es2017"
+    ],
+    "jsx": "react-jsx",
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "typeRoots": [
+      "index.d.ts",
+      "node_modules/@types"
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx"
+    "noEmit": true
   },
   "include": [
-    "src"
+    "./src/lib/number-counter.tsx"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
