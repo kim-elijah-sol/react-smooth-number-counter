@@ -54,6 +54,10 @@ var SEQUENCES = [
     ",",
     ".",
 ];
+var inherit = {
+    color: "inherit",
+    font: "inherit",
+};
 var NumberCounter = function (props) {
     var _a, _b, _c, _d;
     var value = props.value;
@@ -74,34 +78,11 @@ var NumberCounter = function (props) {
         display: "inline-block",
         height: box_style.height,
     };
-    var sequence_scroll_style = {
-        width: "100%",
-        transition: sequence_transition,
-        position: "absolute",
-        left: 0,
-        fontSize: "inherit",
-    };
-    var sequence_style = {
-        width: "100%",
-        height: box_style.height,
-        textAlign: "center",
-        fontSize: "inherit",
-    };
-    var mock_style = {
-        position: "fixed",
-        left: -9999,
-        top: -9999,
-        visibility: "hidden",
-        fontSize: "inherit",
-    };
+    var sequence_scroll_style = __assign({ width: "100%", transition: sequence_transition, position: "absolute", left: 0 }, inherit);
+    var sequence_style = __assign({ width: "100%", height: box_style.height, textAlign: "center" }, inherit);
+    var mock_style = __assign({ position: "fixed", left: -9999, top: -9999, visibility: "hidden" }, inherit);
     var getSpliterStyle = function (e) {
-        return {
-            left: 0,
-            top: 0,
-            transform: "translateY(-" + (e === "," ? "100" : "200") + "%)",
-            position: "absolute",
-            fontSize: "inherit",
-        };
+        return __assign({ left: 0, top: 0, transform: "translateY(-" + (e === "," ? "100" : "200") + "%)", position: "absolute" }, inherit);
     };
     var getTop = function (e) {
         if (loaded && e === ",") {
@@ -119,26 +100,33 @@ var NumberCounter = function (props) {
         }
     };
     var getSequenceBoxStyle = function (item, index) {
-        var right = suffix_width +
-            sequence.reduce(function (acc, current, _index) {
-                return (acc +
-                    (index < _index
-                        ? [",", "."].includes(current)
-                            ? box_style.width * 0.67
-                            : box_style.width
-                        : 0));
-            }, 0);
+        var right = sequence.reduce(function (acc, current, _index) {
+            return (acc +
+                (index < _index
+                    ? [",", "."].includes(current)
+                        ? box_style.width * 0.67
+                        : box_style.width
+                    : 0));
+        }, 0);
         var sequence_box_style_by_align = align === "left"
             ? {
                 position: "relative",
             }
-            : {
-                position: "absolute",
-                top: 0,
-                transition: sequence_transition,
-                right: right,
-            };
-        return __assign({ width: item === "." || item === "," ? box_style.width * 0.67 : box_style.width, height: box_style.height, position: "relative", overflow: "hidden", display: "inline-block", fontSize: "inherit" }, sequence_box_style_by_align);
+            : align === "right"
+                ? {
+                    position: "absolute",
+                    top: 0,
+                    transition: sequence_transition,
+                    right: right + suffix_width + 3,
+                }
+                : {
+                    position: "absolute",
+                    top: 0,
+                    left: "calc(50% + " + ((getBoxWidht() - suffix_width) / 2 - right - 3) + "px)",
+                    transform: "translateX(-100%)",
+                    transition: sequence_transition,
+                };
+        return __assign(__assign({ width: item === "." || item === "," ? box_style.width * 0.67 : box_style.width, height: box_style.height, position: "relative", overflow: "hidden", display: "inline-block" }, inherit), sequence_box_style_by_align);
     };
     var getSequenceStyle = function (e) {
         return e === "," || e === "."
@@ -151,7 +139,7 @@ var NumberCounter = function (props) {
         return loaded || index === 0 ? 1 : 0;
     };
     var getWidth = function () {
-        return getBoxWidht() + suffix_width + 3;
+        return "100%";
     };
     var getBoxWidht = function () {
         var _sequence = loaded ? sequence : ["0"];
@@ -168,12 +156,17 @@ var NumberCounter = function (props) {
         ? {
             left: getBoxWidht() + 3,
         }
-        : {
-            right: 0,
-        };
-    var suffix_style = __assign({ position: "absolute", top: 0, transition: setting_cnt.current >= 2
+        : align === "right"
+            ? {
+                right: 0,
+            }
+            : {
+                left: "50%",
+                transform: "translateX(" + (loaded ? (getBoxWidht() - suffix_width) / 2 + "px" : "-50%") + ")",
+            };
+    var suffix_style = __assign(__assign({ position: "absolute", top: 0, transition: setting_cnt.current >= 2
             ? sequence_transition
-            : (((sequence.length - 1) / sequence.length) * transition) / 700 + "s", fontSize: "inherit" }, suffix_position_style_by_align);
+            : (((sequence.length - 1) / sequence.length) * transition) / 700 + "s" }, inherit), suffix_position_style_by_align);
     react_1.default.useEffect(function () {
         if (!loaded && mock_ref.current) {
             setTimeout(function () {
@@ -185,7 +178,6 @@ var NumberCounter = function (props) {
         }
     }, [loaded, mock_ref]);
     react_1.default.useEffect(function () {
-        var _a;
         var prev_sequence = __spreadArray([], sequence, true);
         var next_sequence = value
             .toString()
@@ -197,13 +189,12 @@ var NumberCounter = function (props) {
         }
         else {
             var temp_sequence = next_sequence.map(function (_, index) {
-                var _a;
-                return (_a = prev_sequence[index]) !== null && _a !== void 0 ? _a : 0;
+                return prev_sequence[index] ? _ : "0";
             });
             setSequence(temp_sequence);
             setTimeout(function () {
                 setSequence(next_sequence);
-            }, ((_a = props.transition) !== null && _a !== void 0 ? _a : 150) / 2000);
+            }, transition / 2);
         }
         setting_cnt.current += 1;
     }, [props.value]);
