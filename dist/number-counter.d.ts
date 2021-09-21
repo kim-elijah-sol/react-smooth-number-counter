@@ -1,8 +1,8 @@
 /// <reference types="react" />
 interface Props {
     value: number;
-    transition: number;
-    suffix: string;
+    transition?: number;
+    suffix?: string;
     id?: string;
     className?: string;
 }
