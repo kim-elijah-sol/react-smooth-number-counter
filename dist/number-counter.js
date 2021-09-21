@@ -40,7 +40,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var react_1 = __importStar(require("react"));
-var sequences = [
+var SEQUENCES = [
     "0",
     "1",
     "2",
@@ -55,22 +55,24 @@ var sequences = [
     ".",
 ];
 var NumberCounter = function (props) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     var value = props.value;
+    var align = (_a = props.align) !== null && _a !== void 0 ? _a : "left";
     var mock_ref = react_1.default.useRef(null);
     var suffix_ref = react_1.default.useRef(null);
     var setting_cnt = react_1.default.useRef(0);
-    var _d = react_1.default.useState(["0"]), sequence = _d[0], setSequence = _d[1];
-    var transition = (_a = props.transition) !== null && _a !== void 0 ? _a : 1000;
-    var sequence_transition = "all " + transition / 1000 + "s cubic-bezier(0.07, 0.49, 0.35, 0.99)";
-    var _e = react_1.default.useState({
+    var _e = react_1.default.useState(["0"]), sequence = _e[0], setSequence = _e[1];
+    var _f = react_1.default.useState({
         width: -1,
         height: -1,
-    }), box_style = _e[0], setBoxStyle = _e[1];
+    }), box_style = _f[0], setBoxStyle = _f[1];
+    var transition = (_b = props.transition) !== null && _b !== void 0 ? _b : 1000;
+    var sequence_transition = "all " + transition / 1000 + "s cubic-bezier(0.07, 0.49, 0.35, 0.99)";
     var loaded = box_style.width !== -1 && box_style.height !== -1;
     var number_counter_style = {
         position: "relative",
         display: "inline-block",
+        height: box_style.height,
     };
     var sequence_scroll_style = {
         width: "100%",
@@ -108,7 +110,7 @@ var NumberCounter = function (props) {
         if (loaded && e === ".") {
             return box_style.height * 2;
         }
-        var top = sequences.indexOf(e) * (box_style.height * -1);
+        var top = SEQUENCES.indexOf(e) * (box_style.height * -1);
         if (loaded) {
             return top;
         }
@@ -116,15 +118,27 @@ var NumberCounter = function (props) {
             return 0;
         }
     };
-    var getSequenceBoxStyle = function (item) {
-        return {
-            width: item === "." || item === "," ? box_style.width * 0.67 : box_style.width,
-            height: box_style.height,
-            position: "relative",
-            overflow: "hidden",
-            display: "inline-block",
-            fontSize: "inherit",
-        };
+    var getSequenceBoxStyle = function (item, index) {
+        var right = suffix_width +
+            sequence.reduce(function (acc, current, _index) {
+                return (acc +
+                    (index < _index
+                        ? [",", "."].includes(current)
+                            ? box_style.width * 0.67
+                            : box_style.width
+                        : 0));
+            }, 0);
+        var sequence_box_style_by_align = align === "left"
+            ? {
+                position: "relative",
+            }
+            : {
+                position: "absolute",
+                top: 0,
+                transition: sequence_transition,
+                right: right,
+            };
+        return __assign({ width: item === "." || item === "," ? box_style.width * 0.67 : box_style.width, height: box_style.height, position: "relative", overflow: "hidden", display: "inline-block", fontSize: "inherit" }, sequence_box_style_by_align);
     };
     var getSequenceStyle = function (e) {
         return e === "," || e === "."
@@ -149,16 +163,17 @@ var NumberCounter = function (props) {
         }, 0);
         return width;
     };
-    var suffix_width = (_c = (_b = suffix_ref.current) === null || _b === void 0 ? void 0 : _b.clientWidth) !== null && _c !== void 0 ? _c : 0;
-    var suffix_style = {
-        position: "absolute",
-        top: 0,
-        transition: setting_cnt.current >= 2
+    var suffix_width = (_d = (_c = suffix_ref.current) === null || _c === void 0 ? void 0 : _c.clientWidth) !== null && _d !== void 0 ? _d : 0;
+    var suffix_position_style_by_align = align === "left"
+        ? {
+            left: getBoxWidht() + 3,
+        }
+        : {
+            right: 0,
+        };
+    var suffix_style = __assign({ position: "absolute", top: 0, transition: setting_cnt.current >= 2
             ? sequence_transition
-            : (((sequence.length - 1) / sequence.length) * transition) / 700 + "s",
-        fontSize: "inherit",
-        left: getBoxWidht() + 3,
-    };
+            : (((sequence.length - 1) / sequence.length) * transition) / 700 + "s", fontSize: "inherit" }, suffix_position_style_by_align);
     react_1.default.useEffect(function () {
         if (!loaded && mock_ref.current) {
             setTimeout(function () {
@@ -201,16 +216,16 @@ var NumberCounter = function (props) {
     return (react_1.default.createElement("div", { id: id, className: "number-counter" + (props.className ? " " + props.className : ""), style: __assign(__assign({}, number_counter_style), { width: getWidth() }) },
         sequence.map(function (item, index) {
             return (react_1.default.createElement(react_1.default.Fragment, { key: index },
-                react_1.default.createElement("div", { style: getSequenceBoxStyle(item) },
+                react_1.default.createElement("div", { style: getSequenceBoxStyle(item, index) },
                     react_1.default.createElement("div", { style: __assign(__assign({}, sequence_scroll_style), { top: getTop(item), transitionDelay: setting_cnt.current >= 2
                                 ? "0.01s"
-                                : getAnimationDelay(index), opacity: getOpacity(index) }) }, sequences.map(function (item) {
+                                : getAnimationDelay(index), opacity: getOpacity(index) }) }, SEQUENCES.map(function (item) {
                         return (react_1.default.createElement(react_1.default.Fragment, { key: item },
                             react_1.default.createElement("div", { style: getSequenceStyle(item) }, item)));
                     })))));
         }),
         react_1.default.createElement("div", { style: suffix_style, ref: suffix_ref }, props.suffix),
-        react_1.default.createElement("div", { ref: mock_ref, style: ref_style }, "0")));
+        react_1.default.createElement("div", { ref: mock_ref, style: ref_style, id: "mock-" + id }, "0")));
 };
 exports.default = NumberCounter;
 //# sourceMappingURL=number-counter.js.map
