@@ -87,7 +87,7 @@ var NumberCounter = function (props) {
         textAlign: "center",
         fontSize: "inherit",
     };
-    var ref_style = {
+    var mock_style = {
         position: "fixed",
         left: -9999,
         top: -9999,
@@ -225,7 +225,7 @@ var NumberCounter = function (props) {
                     })))));
         }),
         react_1.default.createElement("div", { style: suffix_style, ref: suffix_ref }, props.suffix),
-        react_1.default.createElement("div", { ref: mock_ref, style: ref_style, id: "mock-" + id }, "0")));
+        react_1.default.createElement("div", { ref: mock_ref, style: mock_style }, "0")));
 };
 exports.default = NumberCounter;
 //# sourceMappingURL=number-counter.js.map
