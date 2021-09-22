@@ -53,6 +53,7 @@ var SEQUENCES = [
     "9",
     ",",
     ".",
+    "-",
 ];
 var inherit = {
     color: "inherit",
@@ -71,7 +72,7 @@ var NumberCounter = function (props) {
         height: -1,
     }), box_style = _f[0], setBoxStyle = _f[1];
     var transition = (_b = props.transition) !== null && _b !== void 0 ? _b : 1000;
-    var sequence_transition = "all " + transition / 1000 + "s cubic-bezier(0.07, 0.49, 0.35, 0.99)";
+    var sequence_transition = "all " + transition / 1000 + "s cubic-bezier(0, 0.6, 0.35, 1)";
     var loaded = box_style.width !== -1 && box_style.height !== -1;
     var number_counter_style = {
         position: "relative",
@@ -82,7 +83,8 @@ var NumberCounter = function (props) {
     var sequence_style = __assign({ width: "100%", height: box_style.height, textAlign: "center" }, inherit);
     var mock_style = __assign({ position: "fixed", left: -9999, top: -9999, visibility: "hidden" }, inherit);
     var getSpliterStyle = function (e) {
-        return __assign({ left: 0, top: 0, transform: "translateY(-" + (e === "," ? "100" : "200") + "%)", position: "absolute" }, inherit);
+        var translate_y = e === "," ? "100" : e === "." ? "200" : "300";
+        return __assign({ left: 0, top: 0, transform: "translateY(-" + translate_y + "%)", position: "absolute" }, inherit);
     };
     var getTop = function (e) {
         if (loaded && e === ",") {
@@ -90,6 +92,9 @@ var NumberCounter = function (props) {
         }
         if (loaded && e === ".") {
             return box_style.height * 2;
+        }
+        if (loaded && e === "-") {
+            return box_style.height * 3;
         }
         var top = SEQUENCES.indexOf(e) * (box_style.height * -1);
         if (loaded) {
@@ -103,7 +108,7 @@ var NumberCounter = function (props) {
         var right = sequence.reduce(function (acc, current, _index) {
             return (acc +
                 (index < _index
-                    ? [",", "."].includes(current)
+                    ? [",", ".", "-"].includes(current)
                         ? box_style.width * 0.67
                         : box_style.width
                     : 0));
@@ -126,10 +131,12 @@ var NumberCounter = function (props) {
                     transform: "translateX(-100%)",
                     transition: sequence_transition,
                 };
-        return __assign(__assign({ width: item === "." || item === "," ? box_style.width * 0.67 : box_style.width, height: box_style.height, position: "relative", overflow: "hidden", display: "inline-block" }, inherit), sequence_box_style_by_align);
+        return __assign(__assign({ width: item === "." || item === "," || item === "-"
+                ? box_style.width * 0.67
+                : box_style.width, height: box_style.height, position: "relative", overflow: "hidden", display: "inline-block" }, inherit), sequence_box_style_by_align);
     };
     var getSequenceStyle = function (e) {
-        return e === "," || e === "."
+        return e === "," || e === "." || e === "-"
             ? __assign(__assign({}, sequence_style), getSpliterStyle(e)) : sequence_style;
     };
     var getAnimationDelay = function (e) {
@@ -144,7 +151,7 @@ var NumberCounter = function (props) {
     var getBoxWidht = function () {
         var _sequence = loaded ? sequence : ["0"];
         var width = _sequence.reduce(function (acc, current) {
-            var item_width = current === "," || current === "."
+            var item_width = current === "," || current === "." || current === "-"
                 ? box_style.width * 0.67
                 : box_style.width;
             return acc + item_width;
